@@ -34,6 +34,7 @@ private:
     static void login();
     static void renameUser();
     static void compose();
+    static void receive();
     static auto request(const std::string &question) -> std::unique_ptr<std::string>;
     static void printChatUsersNum();
     static void printUserStatus();

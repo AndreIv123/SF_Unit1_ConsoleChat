@@ -57,24 +57,44 @@ void Console::renameUser()
 void Console::compose()
 {
     auto text = request(std::string("Message:"));
+    auto userlist = _chat->usersIDs();
 
-    std::unique_ptr<Menu> menu = makeRecipientMenu();
-    std::unique_ptr<std::vector<Uniq::ID>> userlist = _chat->usersIDs();
-
+    auto menu = makeRecipientMenu();
+    menu->addOption(std::string("ALL"));
     for (long idx=0; idx<((*userlist).size()); ++idx) {
         Uniq::ID id = ((*userlist)[idx]);
         std::unique_ptr<std::string> name = _chat->usersNameByID(id);
-        menu->addOption((*name) + " ID:" + std::to_string(id.value) );
+        menu->addOption((*name) + " (ID:" + std::to_string(id.value) + ")" );
     };
 
-
-
-    Uniq::ID idRec = (*userlist)[menu->menu()];
-
-    std::unique_ptr<Uniq::ID> msgID = _chat->msgSend(std::string("message"),idRec);
+    auto idx = (menu->menu())-1;
+    if (idx >= 0) {
+        auto idRec = std::make_unique<Uniq::ID>((*userlist)[idx]);
+        std::unique_ptr<Uniq::ID> msgID = _chat->msgSend(*text,*idRec);
+    } else {
+        _chat->msgSendAll(*text);
+    };
 
 };
 
+
+void Console::receive()
+{
+    if (_chat->msgUnread() > 0 ) {
+        auto msg = _chat->msgReceive();
+        if (msg) {
+            auto idMsg = msg->id();
+            auto idSender = msg->getSenderID();
+            auto nameSender = _chat->usersNameByID(idSender);
+            std::cout << "<< MsgID: " << idMsg.value << std::endl;
+            std::cout << "<< Sender: '" << *nameSender << "' (ID" << idSender.value << ")" << std::endl;
+            std::cout << "<< Text: " << msg->getText() << std::endl;
+        };
+    } else {
+        std::cout << "! No unread msgs" << std::endl;
+    };
+
+};
 
 
 
@@ -143,8 +163,8 @@ void Console::makeChatMenu()
     auto exit_option = _menuChat->addOption(std::string("logout (<-)"));
     _menuChat->markExit(exit_option);
 
-    _menuChat->addOption(std::string("update status"));
-    _menuChat->addOption(std::string("read message"));
+    _menuChat->addOption(std::string("update status")); //reenter menu
+    _menuChat->addOption(std::string("read message"),receive);
     _menuChat->addOption(std::string("send message"),compose);
     _menuChat->addOption(std::string("change name"), renameUser);
 
@@ -157,12 +177,12 @@ auto Console::makeRecipientMenu() -> std::unique_ptr<Menu>
 {
     auto menu = std::make_unique<Menu>();
 
-    menu->setFlagZeroOptionLast(false);
+    menu->setFlagZeroOptionLast(true);
     menu->setFlagRepeatMenu(false);
     menu->setFlagExpectUserInput(true);
-    menu->setFlagPromtUntilValid(true);
+    menu->setFlagPromtUntilValid(false);
 
-    _menuChat->setHeader(std::string("* User"));
+    menu->setHeader(std::string("* Recepients:"));
 
     return menu;
 };

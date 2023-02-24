@@ -29,9 +29,9 @@ public:
     auto usersIDs() -> std::unique_ptr<std::vector<Uniq::ID>>;
     auto usersNameByID(const Uniq::ID &id) -> std::unique_ptr<std::string>;
 
-    auto msgSend(const std::string &msg, const Uniq::ID &idRecepient) -> std::unique_ptr<Uniq::ID>;
+    auto msgSend(const std::string &msg, const Uniq::ID &idRecep) -> std::unique_ptr<Uniq::ID>;
     auto msgSendAll(const std::string &msg) -> std::unique_ptr<Uniq::ID>;
-
+    auto msgReceive() -> std::shared_ptr<Message>;
     long msgUnread();
 
     auto getActiveLogin() -> std::string;

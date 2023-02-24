@@ -16,6 +16,7 @@ long Menu::menu()
         _footer.call();
     } while (shouldRepeatMenu(idxOptionSelected));
 
+
     return idxOptionSelected;
 };
 

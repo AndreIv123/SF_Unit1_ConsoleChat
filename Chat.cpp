@@ -115,40 +115,62 @@ auto Chat::usersNameByID(const Uniq::ID &id) -> std::unique_ptr<std::string>
 
 long Chat::msgUnread()
 {
-
-    std::cout << "Capacity unread" << (_userActive->_messages).size() << std::endl;
     return ((_userActive) ? _userActive->getUnread() : -1);
 };
 
 
-auto Chat::msgSend(const std::string &msg, const Uniq::ID &idRecepient) -> std::unique_ptr<Uniq::ID>
+auto Chat::msgSend(const std::string &msg, const Uniq::ID &idRecep) -> std::unique_ptr<Uniq::ID>
 {
     std::unique_ptr<Uniq::ID> msgID;
 
     if (_userActive) {
         auto message = std::make_shared<Message>(msg, _userActive->id());
-
-        std::shared_ptr<User> recepient = user(idRecepient);
-        std::cout << "# idRecepient" << idRecepient.value << std::endl;
-
-        std::cout << "Capacity message created" << (_userActive->_messages).size() << std::endl;
+        msgID = std::make_unique<Uniq::ID>(message->id());
+        std::shared_ptr<User> recepient = user(idRecep);
         recepient->msgPush(message);
     };
 
     return msgID;
 };
 
+auto Chat::msgSendAll(const std::string &msg) -> std::unique_ptr<Uniq::ID>
+{
+    std::unique_ptr<Uniq::ID> msgID;
+
+    if (_userActive) {
+
+        auto message = std::make_shared<Message>(msg, _userActive->id());
+        msgID = std::make_unique<Uniq::ID>(message->id());
+
+        for (long idx=0; idx<_users.size(); idx++) {
+            auto recepient = _users[idx];
+            recepient->msgPush(message);
+        };
+    };
+
+    return msgID;
+
+};
+
+auto Chat::msgReceive() -> std::shared_ptr<Message>
+{
+    return ( (msgUnread()>0) ? _userActive->msgPull() : nullptr);
+};
+
+
 
 auto Chat::usersIDs() -> std::unique_ptr<std::vector<Uniq::ID>>
 {
-    std::unique_ptr<std::vector<Uniq::ID>> userlist;
+    auto userlist = std::make_unique<std::vector<Uniq::ID>>();
 
     long idx {0};
     long sz {_users.size()};
 
+
+
     for (; idx<sz; ++idx)
     {
-        (*userlist)[idx] = _users[idx]->id();
+        (*userlist).push_back(_users[idx]->id());
     };
 
     return userlist;

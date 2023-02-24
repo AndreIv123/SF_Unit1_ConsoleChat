@@ -10,7 +10,6 @@ int main() {
     auto console = std::make_unique<Console>(chat);
 
     chat->usersRegist(std::string("test"),std::string("pas"));
-    chat->usersRegist(std::string("devel"),std::string("suc"));
 
     console->routine();
 
