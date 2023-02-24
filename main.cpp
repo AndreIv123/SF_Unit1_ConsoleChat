@@ -6,14 +6,14 @@
 
 int main() {
 
-    auto chat = std::make_shared<Chat>();
-    auto console = std::make_unique<Console>(chat);
+	auto chat = std::make_shared<Chat>();
+	auto console = std::make_unique<Console>(chat);
 
-    chat->usersRegist(std::string("test"),std::string("pas"));
+	chat->usersRegist(std::string("test"), std::string("pas"));
 
-    console->routine();
+	console->routine();
 
-    return 0;
+	return 0;
 
 };
 
